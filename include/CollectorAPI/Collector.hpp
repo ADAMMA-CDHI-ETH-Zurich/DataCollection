@@ -14,7 +14,7 @@ namespace portaible
 {
     namespace CollectorAPI
     {
-        class Collector : public portaible::Authority
+        class Collector : public portaible::Module
         {
             protected:
                 typedef std::function<void(const Request&)> Callback;
@@ -40,7 +40,7 @@ namespace portaible
 #define RequestCallback(function) std::bind(&function, this, std::placeholders::_1)
 
 #define DECLARE_COLLECTOR(className)\
-    PORTAIBLE_AUTHORITY(className) \
+    PORTAIBLE_MODULE(className) \
     DECLARE_COLLECTOR_FACTORY(className) \
 
 #define REGISTER_COLLECTOR(className)\

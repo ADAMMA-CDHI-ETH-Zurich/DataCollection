@@ -60,7 +60,7 @@ namespace portaible
 							}
 
 
-							PORTAIBLE_RUNTIME->addAuthority(static_cast<Authority*>(collector));
+							PORTAIBLE_RUNTIME->addModule(static_cast<Module*>(collector));
                         }
                     }
                     
