@@ -24,7 +24,8 @@ namespace portaible
             template<typename Reflector>
             void reflect(Reflector& r)
             {
-                r.member("AtTime", atTime, "Time execute the request.");
+                r.member("AtTime", atTime, "Time to execute the request.");
+       //         r.member("RepetitionDescription", repetitionDecription, "Describes whether to repeat requests after a given time.");
             }
 
         private:

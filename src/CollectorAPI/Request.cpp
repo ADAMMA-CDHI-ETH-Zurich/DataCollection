@@ -34,6 +34,8 @@ namespace portaible
         if(!hasEverBeenExecuted)
         {
             // Schedule execution today at specified time.
+
+            // TODO: What if todayAt is already past ? 
             return Time::todayAt(hour, minute, second);
         }
 

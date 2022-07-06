@@ -23,6 +23,12 @@ namespace portaible
         int minutes;
         int hours;
         Type type;
+
+        template<typename Reflector>
+        void reflect(Reflector& r)
+        {
+
+        }
     
     };
 }
