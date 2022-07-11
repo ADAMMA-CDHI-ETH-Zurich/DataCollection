@@ -1,4 +1,4 @@
 #include "CollectorAPI/Loader/CollectorLoader.hpp"
 
-REGISTER_LOADER(portaible::CollectorLoader::CollectorLoader)
+REGISTER_XML_LOADER(portaible::CollectorLoader::CollectorLoader)
  

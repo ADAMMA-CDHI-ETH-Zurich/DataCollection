@@ -8,26 +8,26 @@
 #include "CollectorAPI/CollectorFactory/CollectorFactory.hpp"
 #include "CollectorAPI/Collector.hpp"
 
-using namespace portaible::Loader;
+using namespace portaible::XMLLoader;
 namespace portaible
 {
 	namespace CollectorLoader
 	{
-		class CollectorLoader : public LoaderBase
+		class CollectorLoader : public XMLLoaderBase
 		{
-			DECLARE_LOADER(CollectorLoader)
+			DECLARE_XML_LOADER(CollectorLoader)
 
 
 
 			public:
-				CollectorLoader() : LoaderBase("Collectors")
+				CollectorLoader() : XMLLoaderBase("Collectors")
 				{
 
 				}
 
-				bool execute(std::vector<XMLNode*> xmlNodes) 
+				bool execute(std::vector<std::shared_ptr<XMLNode>> xmlNodes) 
 				{
-					for (XMLNode* node : xmlNodes)
+					for (std::shared_ptr<XMLNode> node : xmlNodes)
 					{
 						this->loadCollectors(node);
 					}
@@ -36,9 +36,9 @@ namespace portaible
 				}
 
                 private:
-                    void loadCollectors(XMLNode* node)     
+                    void loadCollectors(std::shared_ptr<XMLNode> node)     
                     {
-                        for(XMLNode* child : node->children)
+                        for(std::shared_ptr<XMLNode> child : node->children)
                         {
                             const std::string& collectorName = child->name;
 
