@@ -69,3 +69,5 @@ namespace portaible
     }
 
 }
+
+REGISTER_SERIALIZATION(portaible::Request);

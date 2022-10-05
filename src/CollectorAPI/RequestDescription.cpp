@@ -81,4 +81,4 @@ namespace portaible
 
 }
 
-PORTAIBLE_SERIALIZATION(portaible::RequestDescription)
+REGISTER_SERIALIZATION(portaible::RequestDescription)

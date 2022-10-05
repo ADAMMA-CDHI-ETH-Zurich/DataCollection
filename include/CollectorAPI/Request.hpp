@@ -5,33 +5,32 @@
 
 #include "CollectorAPI/RequestDescription.hpp"
 #include "Utilities/Time.hpp"
+#include "Reflection/Reflect.hpp"
 
 namespace portaible
 {
     struct Request
     {
+        DECLARE_SERIALIZATION(Request)
         public:
 
-            std::string dataIdentifier;
+            std::string dataIdentifier = "AudioData";
+            int length;
 
             Request();
             Request(std::string dataIdentifier);
             Request(std::string dataIdentifier, std::shared_ptr<RequestDescription> requestDescription);
 
-            template<typename Reflector>
-            void reflect(Reflector& r)
-            {
-                r.member("RequestDescription", requestDescription, "", std::shared_ptr<RequestDescription>(new RequestDescription));
-            }
+            Reflect(Request,
+            
+                reflectMember(dataIdentifier);
+                reflectMember(length);
+            )
 
             std::shared_ptr<RequestDescription> requestDescription;
 
             const Time getNextDueTime(); 
 
-            Time calculateNextExecutionTime(const Time& lastExecutionDescription);
-
-
-
-        
+            Time calculateNextExecutionTime(const Time& lastExecutionDescription);       
     };
 }

@@ -6,7 +6,6 @@
 
 #include "Channel/Channel.hpp"
 #include "Request.hpp"
-#include "CollectorFactory/CollectorFactory.hpp"
 
 #include "RunTime/RunTime.hpp"
 
@@ -27,7 +26,7 @@ namespace portaible
             protected:
                 void registerDataRequestHandler(std::string dataIdentifier, Callback callback);
 
-                virtual void onRequest(ChannelRead<Request> request);
+                virtual void onRequest(ChannelData<Request> request);
                 virtual void initializeCollector() {}
 
                 void initialize();
@@ -40,9 +39,10 @@ namespace portaible
 #define RequestCallback(function) std::bind(&function, this, std::placeholders::_1)
 
 #define DECLARE_COLLECTOR(className)\
-    PORTAIBLE_MODULE(className) \
-    DECLARE_COLLECTOR_FACTORY(className) \
+    DECLARE_MODULE(className) \
 
 #define REGISTER_COLLECTOR(className)\
-    PORTAIBLE_SERIALIZATION(className)\
-    REGISTER_TO_COLLECTOR_FACTORY(className) 
+    REGISTER_MODULE(className)\
+
+
+    

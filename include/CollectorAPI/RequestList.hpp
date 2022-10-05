@@ -28,31 +28,8 @@ namespace portaible
 
 namespace portaible
 {
-    // CAUTION: READ MEANS READ FROM "DATA" (NOT FROM FILE) -> SERIALIZATION
     template<typename Reflector>
     void reflectRead(Reflector& r, RequestList& requestList)
-    {
-        // ONLY USE BEGIN AND ENDSEQUENCE IF EVERY ELEMENT
-        // HAS THE SAME NAME, LIKE "item"
-        // r.beginSequence();
-        size_t count;
-        // Set number of elements
-        size_t size = requestList.data.size();
-        r.countElements(size);
-
-        for(size_t i = 0; i < requestList.data.size(); i++)
-        {
-            Request& request = requestList.data[i];
-            r.enforceName(request.dataIdentifier, i);
-            r.member(request.dataIdentifier.c_str(), request, "");
-        }
-
-        //r.endSequence();
-    }
-
-    // CAUTION: WRITE MEANS WRITE TO "DATA" (NOT TO FILE) -> DESERIALIZATION
-    template<typename Reflector>
-    void reflectWrite(Reflector& r, RequestList& requestList)
     {
         // ONLY USE BEGIN AND ENDSEQUENCE IF EVERY ELEMENT
         // HAS THE SAME NAME, LIKE "item"
@@ -76,4 +53,27 @@ namespace portaible
         // HAS THE SAME NAME, LIKE "item"
         // r.endSequence();
     }
+
+    template<typename Reflector>
+    void reflectWrite(Reflector& r, RequestList& requestList)
+    {
+        // ONLY USE BEGIN AND ENDSEQUENCE IF EVERY ELEMENT
+        // HAS THE SAME NAME, LIKE "item"
+        // r.beginSequence();
+        size_t count;
+        // Set number of elements
+        size_t size = requestList.data.size();
+        r.countElements(size);
+
+        for(size_t i = 0; i < requestList.data.size(); i++)
+        {
+            Request& request = requestList.data[i];
+            r.enforceName(request.dataIdentifier, i);
+            r.member(request.dataIdentifier.c_str(), request, "");
+        }
+
+        //r.endSequence();
+    }
+
+    
 }

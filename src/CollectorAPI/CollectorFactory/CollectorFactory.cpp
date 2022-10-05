@@ -1,1 +1,0 @@
-#include "CollectorAPI/CollectorFactory/CollectorFactory.hpp"

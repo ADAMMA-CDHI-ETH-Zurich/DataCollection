@@ -9,7 +9,7 @@ namespace portaible
             this->callbacks.insert(std::make_pair(dataIdentifier, callback));
         }
 
-        void Collector::onRequest(ChannelRead<Request> request)
+        void Collector::onRequest(ChannelData<Request> request)
         {
             const std::string& identifier = request->value().dataIdentifier;
 
