@@ -60,7 +60,7 @@ namespace claid
 							}
 
 
-							PORTAIBLE_RUNTIME->addModule(static_cast<Module*>(collector));
+							CLAID_RUNTIME->addModule(static_cast<Module*>(collector));
                         }
                     }
                     
