@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <cmath>
 
-namespace portaible
+namespace claid
 {
     void RequestDescription::getDueHourMinuteSecond(int& hour, int& minute, int& second)
     {
@@ -81,4 +81,4 @@ namespace portaible
 
 }
 
-REGISTER_SERIALIZATION(portaible::RequestDescription)
+REGISTER_SERIALIZATION(claid::RequestDescription)

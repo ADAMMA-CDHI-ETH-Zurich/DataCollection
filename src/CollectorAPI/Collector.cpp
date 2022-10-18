@@ -1,6 +1,6 @@
 #include "CollectorAPI/Collector.hpp"
 
-namespace portaible
+namespace claid
 {
     namespace CollectorAPI
     {

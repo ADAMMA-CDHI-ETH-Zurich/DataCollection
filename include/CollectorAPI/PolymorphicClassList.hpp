@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace portaible
+namespace claid
 {
     template<typename T>
     class PolymorphicClassList

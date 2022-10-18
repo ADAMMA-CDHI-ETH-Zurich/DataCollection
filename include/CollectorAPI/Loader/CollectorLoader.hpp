@@ -8,8 +8,8 @@
 #include "CollectorAPI/CollectorFactory/CollectorFactory.hpp"
 #include "CollectorAPI/Collector.hpp"
 
-using namespace portaible::XMLLoader;
-namespace portaible
+using namespace claid::XMLLoader;
+namespace claid
 {
 	namespace CollectorLoader
 	{
@@ -45,7 +45,7 @@ namespace portaible
 
                             if (!CollectorFactory::CollectorFactory::getInstance()->isFactoryRegisteredForCollector(collectorName))
 							{
-								PORTAIBLE_THROW(portaible::Exception, "CollectorLoader failed to load Collector from XML. Collector \"" << collectorName << "\" was not registered and is unknown.");
+								PORTAIBLE_THROW(claid::Exception, "CollectorLoader failed to load Collector from XML. Collector \"" << collectorName << "\" was not registered and is unknown.");
 							}
 
 

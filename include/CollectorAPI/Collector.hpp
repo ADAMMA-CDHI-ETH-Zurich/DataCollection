@@ -9,11 +9,11 @@
 
 #include "RunTime/RunTime.hpp"
 
-namespace portaible
+namespace claid
 {
     namespace CollectorAPI
     {
-        class Collector : public portaible::Module
+        class Collector : public claid::Module
         {
             protected:
                 typedef std::function<void(const Request&)> Callback;

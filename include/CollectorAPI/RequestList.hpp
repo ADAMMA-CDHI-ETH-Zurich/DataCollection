@@ -10,7 +10,7 @@
 
 
 
-namespace portaible
+namespace claid
 {
     class RequestList
     {
@@ -26,7 +26,7 @@ namespace portaible
     };
 }
 
-namespace portaible
+namespace claid
 {
     template<typename Reflector>
     void reflectRead(Reflector& r, RequestList& requestList)

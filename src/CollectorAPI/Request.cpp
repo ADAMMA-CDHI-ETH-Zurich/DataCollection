@@ -1,6 +1,6 @@
 #include "CollectorAPI/Request.hpp"
 
-namespace portaible
+namespace claid
 {
     Request::Request()
     {
@@ -70,4 +70,4 @@ namespace portaible
 
 }
 
-REGISTER_SERIALIZATION(portaible::Request);
+REGISTER_SERIALIZATION(claid::Request);

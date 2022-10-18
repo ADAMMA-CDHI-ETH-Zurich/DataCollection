@@ -8,7 +8,7 @@
 #include "RunTime/RunTime.hpp"
 #include "Serialization/Serialization.hpp"
 
-namespace portaible
+namespace claid
 {
     struct RequestDescription
     {
