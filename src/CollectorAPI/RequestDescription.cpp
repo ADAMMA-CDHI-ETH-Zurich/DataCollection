@@ -43,7 +43,7 @@ namespace claid
                                 
                 if(referenceIndex >= numReferences)
                 {
-                    PORTAIBLE_THROW(Exception, "Error, too many ':' in time string atTime. Only hour:minute:second is allowed.");
+                    CLAID_THROW(Exception, "Error, too many ':' in time string atTime. Only hour:minute:second is allowed.");
                 }
                 else
                 {
@@ -53,7 +53,7 @@ namespace claid
             }
             else
             {
-                PORTAIBLE_THROW(Exception, "Error, unrecognized character in string atTime: " << currentChar);
+                CLAID_THROW(Exception, "Error, unrecognized character in string atTime: " << currentChar);
             }
             index--;
         }
@@ -65,17 +65,17 @@ namespace claid
     {
         if(hour > 23 || hour < 0)
         {
-            PORTAIBLE_THROW(Exception, "Error: Failed to parse string atTime: Hour outside range [0, 23]");
+            CLAID_THROW(Exception, "Error: Failed to parse string atTime: Hour outside range [0, 23]");
         }
 
         if(minute > 59 || minute < 0)
         {
-            PORTAIBLE_THROW(Exception, "Error: Failed to parse string atTime: Minute outside range [0, 59]");
+            CLAID_THROW(Exception, "Error: Failed to parse string atTime: Minute outside range [0, 59]");
         }
 
         if(second > 59 || second < 0)
         {
-            PORTAIBLE_THROW(Exception, "Error: Failed to parse string atTime: Second outside range [0, 59]");
+            CLAID_THROW(Exception, "Error: Failed to parse string atTime: Second outside range [0, 59]");
         }
     }
 

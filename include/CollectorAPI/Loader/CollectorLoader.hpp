@@ -45,7 +45,7 @@ namespace claid
 
                             if (!CollectorFactory::CollectorFactory::getInstance()->isFactoryRegisteredForCollector(collectorName))
 							{
-								PORTAIBLE_THROW(claid::Exception, "CollectorLoader failed to load Collector from XML. Collector \"" << collectorName << "\" was not registered and is unknown.");
+								CLAID_THROW(claid::Exception, "CollectorLoader failed to load Collector from XML. Collector \"" << collectorName << "\" was not registered and is unknown.");
 							}
 
 
