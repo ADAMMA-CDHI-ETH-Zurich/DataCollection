@@ -21,12 +21,11 @@ namespace claid
         public:
             void getDueHourMinuteSecond(int& hour, int& minute, int& second);
 
-            template<typename Reflector>
-            void reflect(Reflector& r)
-            {
-                r.member("AtTime", atTime, "Time to execute the request.");
+            Reflect(RequestDescription,
+                reflectMember(atTime);
+                reflectMember(repetitionDecription);
        //         r.member("RepetitionDescription", repetitionDecription, "Describes whether to repeat requests after a given time.");
-            }
+            )
 
         private:
             void verify(const int& hour, const int& minute, const int& second);

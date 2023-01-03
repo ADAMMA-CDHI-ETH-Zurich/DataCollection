@@ -14,8 +14,9 @@ namespace claid
         DECLARE_SERIALIZATION(Request)
         public:
 
-            std::string dataIdentifier = "AudioData";
+            std::string dataIdentifier = "";
             int length;
+            RequestDescription requestDescription;
 
             Request();
             Request(std::string dataIdentifier);
@@ -25,9 +26,9 @@ namespace claid
             
                 reflectMember(dataIdentifier);
                 reflectMember(length);
+                reflectMember(requestDescription);
             )
 
-            std::shared_ptr<RequestDescription> requestDescription;
 
             const Time getNextDueTime(); 
 
