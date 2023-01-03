@@ -58,11 +58,14 @@ namespace claid
     {
         std::string dataIdentifier = this->requestDescription.what;
         this->dataChannel = this->parent->subscribe<Untyped>(dataIdentifier, &RequestHandler::onData, this);
+
+        Logger::printfln("Register function %d\n", this->requestDescription.period);
         this->parent->registerPeriodicFunction(dataIdentifier, &RequestHandler::periodicRequest, this, this->requestDescription.period);
     }
 
     void RequestHandler::onData(ChannelData<Untyped> data)
     {
+        Logger::printfln("on data %s\n", this->requestDescription.saveTo.c_str());
         if(requestDescription.saveTo == "")
         {
             return;
@@ -103,6 +106,7 @@ namespace claid
 
     void RequestHandler::periodicRequest()
     {
+        Logger::printfln("Sending request %s\n", this->requestDescription.what.c_str());
         Request request;
         request.dataIdentifier = this->requestDescription.what;
         this->parent->postRequest(request);

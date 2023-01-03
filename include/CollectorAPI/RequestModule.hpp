@@ -36,7 +36,7 @@ namespace claid
             
             void initialize()
             {
-                Logger::printfln("RequestModule begin init");
+                Logger::printfln("RequestModule begin init %d", this->requestDescriptions.size());
                 this->requestChannel = this->publish<Request>(this->requestChannelName);
 
                 for(const RequestDescription& description : this->requestDescriptions)
