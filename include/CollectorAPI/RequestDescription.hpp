@@ -15,16 +15,13 @@ namespace claid
         DECLARE_SERIALIZATION(RequestDescription)
         //protected:
             //std::string atTime;
-        private:
+        public:
             std::string atTime;
 
             std::string what;
-            std::string period;
+            int32_t period;
             std::string saveTo;
             std::string format;
-
-
-        public:
 
             Reflect(RequestDescription,
                 reflectMember(what);
