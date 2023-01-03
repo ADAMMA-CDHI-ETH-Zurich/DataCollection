@@ -14,18 +14,26 @@ namespace claid
     {
         DECLARE_SERIALIZATION(RequestDescription)
         //protected:
+            //std::string atTime;
+        private:
             std::string atTime;
-            RepetitionDescription repetitionDecription;
+
+            std::string what;
+            std::string period;
+            std::string saveTo;
+            std::string format;
 
 
         public:
-            void getDueHourMinuteSecond(int& hour, int& minute, int& second);
 
             Reflect(RequestDescription,
-                reflectMember(atTime);
-                reflectMember(repetitionDecription);
-       //         r.member("RepetitionDescription", repetitionDecription, "Describes whether to repeat requests after a given time.");
+                reflectMember(what);
+                reflectMember(period);
+                reflectMember(saveTo);
+                reflectMember(format);
             )
+
+            void getDueHourMinuteSecond(int& hour, int& minute, int& second);
 
         private:
             void verify(const int& hour, const int& minute, const int& second);

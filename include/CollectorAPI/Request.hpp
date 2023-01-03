@@ -16,22 +16,17 @@ namespace claid
 
             std::string dataIdentifier = "";
             int length;
-            RequestDescription requestDescription;
 
             Request();
-            Request(std::string dataIdentifier);
-            Request(std::string dataIdentifier, std::shared_ptr<RequestDescription> requestDescription);
-
-            Reflect(Request,
             
+            Reflect(Request,
                 reflectMember(dataIdentifier);
                 reflectMember(length);
-                reflectMember(requestDescription);
             )
 
 
-            const Time getNextDueTime(); 
+            // const Time getNextDueTime(); 
 
-            Time calculateNextExecutionTime(const Time& lastExecutionDescription);       
+            // Time calculateNextExecutionTime(const Time& lastExecutionDescription);       
     };
 }
