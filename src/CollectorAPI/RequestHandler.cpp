@@ -96,7 +96,11 @@ namespace claid
                 << "If you try to record data coming from a remote connection, you need to manually create a typed publisher/subscriber for this channel\n"
                 << "(e.g., start a Module that publishes to the Channel with your desired type.");
             }
-            
+
+            std::string headerPath = this->getCurrentRecordingPath() + std::string("/stamp_") + std::to_string(this->numSamples) + std::string(".xml");
+            XMLDocument headerDocument;
+            headerDocument.setXMLNode(data.headerToXML());
+            headerDocument.saveToFile(headerPath);  
         }
         
 

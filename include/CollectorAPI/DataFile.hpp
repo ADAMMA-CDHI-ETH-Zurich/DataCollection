@@ -12,7 +12,6 @@ namespace claid
     // real binary files (e.g., audio data), as some characters might get escaped.
     struct DataFile
     {
-        DECLARE_SERIALIZATION(DataFile);
         std::string relativePath;
         BinaryData binaryData;
 
