@@ -58,9 +58,15 @@ namespace claid
 
             void makePathRelative(std::string& path)
             {
-                if(StringUtils::startsWith(path, this->filePath))
+                std::string basePath = this->filePath;
+                if(this->filePath[this->filePath.size() - 1] != '/')
                 {
-                    path = path.substr(this->filePath.size(), path.size());   
+                    basePath += '/';
+                }
+
+                if(StringUtils::startsWith(path, basePath))
+                {
+                    path = path.substr(basePath.size(), path.size());   
                 }
             }
 
@@ -73,18 +79,18 @@ namespace claid
                     // No folder, assume path is only a fileName.
                     folderPath = "";
                     fileName = "path";
+                    return;
                 }
-
                 int index = path.size() - 1;
                 while(index > 0)
                 {
                     if(path[index] == '/')
                     {
-                        folderPath = path.substr(0, index - 1);
+                        folderPath = path.substr(0, index);
                         fileName = path.substr(index + 1, path.size());
                         return;
                     }
-                    index --;
+                    index--;
                 }
             }
 
@@ -112,14 +118,15 @@ namespace claid
 
                 const std::vector<std::string>& completeList = data->value();
 
-                for(const std::string& value : completeList)
-                {
-                    std::cout << value << "\n";
-                }
+                
 
                 std::vector<std::string> missingFiles;
                 getMissingElements(completeList, localList, missingFiles);
 
+                for(const std::string& value : missingFiles)
+                {
+                    std::cout << "missing " << value << "\n";
+                }
                 // Send the list of missing files to the FileSyncerModule.
                 // Afterwards, it will send us the missing files.
                 this->requestedFileListChannel.post(missingFiles);
@@ -135,7 +142,7 @@ namespace claid
                 std::string folderPath;
                 std::string filePath;
                 splitPathIntoFolderAndFileName(relativePath, folderPath, filePath);
-
+                printf("folder file %s %s\n", folderPath.c_str(), filePath.c_str());
                  
                 if(folderPath != "")
                 {

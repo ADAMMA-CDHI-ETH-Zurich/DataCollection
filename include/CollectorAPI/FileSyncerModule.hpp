@@ -89,7 +89,7 @@ namespace claid
                         CLAID_THROW(Exception, "Error in FileSyncerModule, file \"" << path << "\" was requested to be sent,\n"
                         << "but it could not be loaded from the filesystem. Either the file does not exist or we do not have permission to read it.");
                     }
-                    file.relativePath = path;
+                    file.relativePath = relativePath;
                     this->dataFileChannel.post(file);
                 }
             }
@@ -98,11 +98,7 @@ namespace claid
             {
                 
                 const std::vector<std::string>& missingFileList = missingFileListData->value();
-                std::cout << "received missing file list \n";
-                for(const std::string& value : missingFileList)
-                {
-                    std::cout << value << "\n";
-                }
+                
                 sendRequestedFiles(missingFileList);
             }
 
