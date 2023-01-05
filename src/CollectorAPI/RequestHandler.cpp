@@ -1,6 +1,17 @@
 #include "CollectorAPI/RequestHandler.hpp"
 #include "CollectorAPI/RequestModule.hpp"
 #include "XML/XMLDocument.hpp"
+
+
+#ifdef __APPLE__
+    #if TARGET_OS_IPHONE
+    // Changes this->filePath from e.g., Measurements/AudioData to 
+    // /var/mobile/Containers/Data/Application/{iOS_APP_ID}/Documents/Measurements/AudioData
+    // (path and iOS_APP_ID are determined automatically using iOSApplicationPathHelper).
+    #include "CollectorAPI/iOSHelper/iOSApplicationPathHelper.hpp"
+    #endif
+#endif
+
 namespace claid
 {
     RequestHandler::RequestHandler(const int handlerID) : handlerID(handlerID)
@@ -108,6 +119,15 @@ namespace claid
 
     }
 
+    #ifdef __APPLE__
+        #if TARGET_OS_IPHONE
+        void RequestHandler::prependiOSDocumentsPathToFilePath()
+        {
+            this->requestDescription.saveTo = iOSApplicationPathHelper::getAppDocumentsPath() + std::string("/") + this->requestDescription.saveTo;
+        }
+        #endif
+    #endif
+
     void RequestHandler::periodicRequest()
     {
         Logger::printfln("Sending request %s\n", this->requestDescription.what.c_str());
@@ -118,6 +138,11 @@ namespace claid
 
     void RequestHandler::initialize()
     {
+        #ifdef __APPLE__
+            #if TARGET_OS_IPHONE
+            this->prependiOSDocumentsPathToFilePath();
+            #endif
+        #endif
         setupStorageFolder();
         setupRequest();
     }

@@ -4,6 +4,14 @@
 #include "Utilities/FileUtils.hpp"
 #include "Utilities/StringUtils.hpp"
 #include "DataFile.hpp"
+#ifdef __APPLE__
+    #include "TargetConditionals.h"
+    #if TARGET_OS_IPHONE
+    #include "CollectorAPI/iOSHelper/iOSApplicationPathHelper.hpp"
+    #endif
+#endif
+
+
 namespace claid
 {
     // Syncs files contained in a certain directory with a FileReceiverModule.
@@ -119,6 +127,12 @@ namespace claid
 
             void initialize()
             {
+                #ifdef __APPLE__
+                    #if TARGET_OS_IPHONE
+                        this->filePath = iOSApplicationPathHelper::getAppDocumentsPath() + std::string("/") + this->filePath;
+                    #endif
+                #endif
+
                 this->completeFileListChannel = this->publish<std::vector<std::string>>(this->completeFileListChannelName);
                 this->requestedFileListChannel = this->subscribe<std::vector<std::string>>(this->requestedFileListChannelName, &FileSyncerModule::onFilesRequested, this);
                 this->dataFileChannel = this->publish<DataFile>(this->dataFileChannelName);

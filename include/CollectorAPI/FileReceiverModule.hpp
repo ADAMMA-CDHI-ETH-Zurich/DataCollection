@@ -3,7 +3,12 @@
 #include "Utilities/FileUtils.hpp"
 #include "Utilities/StringUtils.hpp"
 #include "DataFile.hpp"
-
+#ifdef __APPLE__
+    #include "TargetConditionals.h"
+    #if TARGET_OS_IPHONE
+    #include "CollectorAPI/iOSHelper/iOSApplicationPathHelper.hpp"
+    #endif
+#endif
 
 namespace claid
 {
@@ -167,10 +172,11 @@ namespace claid
 
             void setupStorageFolder()
             {
-                if(this->filePath == "")
-                {
-                    return;
-                }
+                #ifdef __APPLE__
+                    #if TARGET_OS_IPHONE
+                        this->filePath = iOSApplicationPathHelper::getAppDocumentsPath() + std::string("/") + this->filePath;
+                    #endif
+                #endif
                 
                 std::string savePath = this->filePath;
 

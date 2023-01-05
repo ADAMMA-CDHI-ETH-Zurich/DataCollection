@@ -27,8 +27,8 @@ namespace claid
             Reflect(RequestDescription,
                 reflectMember(what);
                 reflectMember(period);
-                reflectMember(saveTo);
-                reflectMember(format);
+                reflectMemberWithDefaultValue(saveTo, std::string(""));
+                reflectMemberWithDefaultValue(format, std::string(""));
             )
 
             void getDueHourMinuteSecond(int& hour, int& minute, int& second);

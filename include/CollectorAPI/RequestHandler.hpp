@@ -5,6 +5,10 @@
 #include "Request.hpp"
 #include "Utilities/FileUtils.hpp"
 
+#ifdef __APPLE__
+	#include "TargetConditionals.h"
+#endif
+
 namespace claid
 {
     class RequestModule;
@@ -33,6 +37,15 @@ namespace claid
 
             void periodicRequest();
 
+            #ifdef __APPLE__
+                #if TARGET_OS_IPHONE
+                // Changes this->filePath from e.g., Measurements/AudioData to 
+                // /var/mobile/Containers/Data/Application/{iOS_APP_ID}/Documents/Measurements/AudioData
+                // (path and iOS_APP_ID are determined automatically using iOSApplicationPathHelper).
+                void prependiOSDocumentsPathToFilePath();
+                #endif
+            #endif
+
         public:
 
             RequestHandler(const int handlerID);
@@ -41,6 +54,7 @@ namespace claid
 
             void initialize();
             void terminate();
+            
         
             
 
