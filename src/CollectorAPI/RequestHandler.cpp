@@ -108,13 +108,13 @@ namespace claid
                 << "(e.g., start a Module that publishes to the Channel with your desired type.");
             }
 
-            std::string headerPath = this->getCurrentRecordingPath() + std::string("/stamp_") + std::to_string(this->numSamples) + std::string(".xml");
-            XMLDocument headerDocument;
-            headerDocument.setXMLNode(data.headerToXML());
-            headerDocument.saveToFile(headerPath);  
+            
         }
         
-
+        std::string headerPath = this->getCurrentRecordingPath() + std::string("/stamp_") + std::to_string(this->numSamples) + std::string(".xml");
+        XMLDocument headerDocument;
+        headerDocument.setXMLNode(data.headerToXML());
+        headerDocument.saveToFile(headerPath);  
         this->numSamples++;
 
     }
