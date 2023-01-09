@@ -86,11 +86,11 @@ namespace claid
 
         if(this->requestDescription.format == "Binary")
         {
-            std::string path = this->getCurrentRecordingPath() + std::string("/") + std::to_string(this->numSamples) + std::string(".raw");
+            std::string path = this->getCurrentRecordingPath() + std::string("/") + std::to_string(this->numSamples) + std::string(".claid_binary");
             TaggedData<BinaryData> binaryData = data.getBinaryData();
             binaryData.value().saveToFile(path);
         }
-        else
+        else if(this->requestDescription.format == "XML")
         {
             std::string path = this->getCurrentRecordingPath() + std::string("/") + std::to_string(this->numSamples) + std::string(".xml");
             
@@ -107,8 +107,11 @@ namespace claid
                 << "If you try to record data coming from a remote connection, you need to manually create a typed publisher/subscriber for this channel\n"
                 << "(e.g., start a Module that publishes to the Channel with your desired type.");
             }
-
-            
+        }
+        else
+        {
+            CLAID_THROW(Exception, "Error in RequestHandler of RequestModule: Cannot store data in format \"" << this->requestDescription.format << "\".\n"
+            << "The format is unknown and not supported. Supported formats are : [XML, Binary]");
         }
         
         std::string headerPath = this->getCurrentRecordingPath() + std::string("/stamp_") + std::to_string(this->numSamples) + std::string(".xml");
