@@ -118,6 +118,7 @@ namespace claid
         XMLDocument headerDocument;
         headerDocument.setXMLNode(data.headerToXML());
         headerDocument.saveToFile(headerPath);  
+
         this->numSamples++;
 
     }

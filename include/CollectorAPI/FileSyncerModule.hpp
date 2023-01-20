@@ -90,6 +90,8 @@ namespace claid
             {
                 for(const std::string& relativePath : filesToSend)
                 {
+                                    printf("Requested file %s\n", relativePath.c_str());
+
                     DataFile file;
                     std::string path = this->filePath + std::string("/") + relativePath;
                     if(!file.loadFromPath(path))
@@ -104,7 +106,7 @@ namespace claid
 
             void onFilesRequested(ChannelData<std::vector<std::string>> missingFileListData)
             {
-                
+                printf("Requested files\n");   
                 const std::vector<std::string>& missingFileList = missingFileListData->value();
                 
                 sendRequestedFiles(missingFileList);
@@ -112,6 +114,7 @@ namespace claid
 
             void periodicSync()
             {
+                Logger::printfln("!!!PERIODIC SYNC!!!");
                 sendFileList();
             }
 

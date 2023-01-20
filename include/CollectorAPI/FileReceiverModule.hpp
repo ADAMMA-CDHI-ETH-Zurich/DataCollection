@@ -1,5 +1,6 @@
 #pragma once
 #include "CLAID.hpp"
+#include "XML/XMLDocument.hpp"
 #include "Utilities/FileUtils.hpp"
 #include "Utilities/StringUtils.hpp"
 #include "DataFile.hpp"
@@ -38,6 +39,7 @@ namespace claid
             std::string requestedFileListChannelName;
             std::string dataFileChannelName;
 
+            bool storeArrivalTimePerFile = false;
 
             template<typename T>
             bool isElementContainedInVector(const std::vector<T>& vector, const T& element)
@@ -168,6 +170,19 @@ namespace claid
                 {
                     CLAID_THROW(Exception, "Error in FileReceiverModule, cannot create target file \"" << targetFilePath << "\".");
                 }
+
+                if(this->storeArrivalTimePerFile)
+                {
+                    Time arrivalTime = Time::now();
+                    std::string arrivalTimeStampPath = 
+                        this->filePath + std::string("/") + folderPath + std::string("/") + filePath + std::string("_arrival.xml");
+                    
+                    XMLSerializer serializer;
+                    serializer.serialize(arrivalTime);
+
+                    XMLDocument xmlDocument(serializer.getXMLNode());
+                    xmlDocument.saveToFile(arrivalTimeStampPath);
+                }
             }
 
             void setupStorageFolder()
@@ -193,6 +208,8 @@ namespace claid
 
             Reflect(FileReceiverModule,
                 reflectMember(filePath);
+                reflectMemberWithDefaultValue(storeArrivalTimePerFile, false);
+
                 reflectMemberWithDefaultValue(completeFileListChannelName, std::string("FileSyncer/CompleteFileList"));
                 reflectMemberWithDefaultValue(requestedFileListChannelName, std::string("FileSyncer/RequestedFileList"));
                 reflectMemberWithDefaultValue(dataFileChannelName, std::string("FileSyncer/DataFiles"));

@@ -22,6 +22,7 @@ namespace claid
             int32_t period;
             std::string saveTo;
             std::string format;
+            bool storeArrivalTime;
         
 
             Reflect(RequestDescription,
