@@ -162,7 +162,7 @@ namespace claid
                 {
                     // We only care to be informed about files that have been received if we shall delete them afterwards.
                     // If not, we do not subscribe to this channel to reduce network load (if we do not subscribe, a remotely connected runtime will not send us data from that channel).
-                    this->receivedFileAcknowledgementChannel = this->subscribe(this->receivedFilesAcknowledgementChannelName, &FileSyncerModule::onFileReceivalAcknowledged, this);
+                    this->receivedFileAcknowledgementChannel = this->subscribe<std::string>(this->receivedFilesAcknowledgementChannelName, &FileSyncerModule::onFileReceivalAcknowledged, this);
                 }
 
                 this->registerPeriodicFunction("PeriodicSyncFunction", &FileSyncerModule::periodicSync, this, this->syncingPeriodInMs);

@@ -64,7 +64,7 @@ namespace claid
                     path = this->filePath + std::string("/") + fileName;
                     if(!FileUtils::fileExists(path))
                     {
-                        missingList.push_back(path);
+                        missingList.push_back(fileName);
                     }
                 }
             }
@@ -125,17 +125,20 @@ namespace claid
 
             void onCompleteFileListReceived(ChannelData<std::vector<std::string>> data)
             {
-
                 const std::vector<std::string>& completeList = data->value();
+                Logger::printfln("Received complete file list");
 
-                
-
+                for(const std::string& value : completeList)
+                {
+                    Logger::printfln("Complete file %s", value.c_str());
+                }                
+ 
                 std::vector<std::string> missingFiles;
                 getMissingElements(completeList, missingFiles);
 
                 for(const std::string& value : missingFiles)
                 {
-                    std::cout << "missing " << value << "\n";
+                    Logger::printfln("Missing %s", value.c_str());
                 }
                 // Send the list of missing files to the FileSyncerModule.
                 // Afterwards, it will send us the missing files.
