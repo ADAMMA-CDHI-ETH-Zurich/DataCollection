@@ -40,14 +40,19 @@ namespace claid
             // On this channel, we post the actual files.
             Channel<DataFile> dataFileChannel;
 
+            // On this channel, the FileReceiver sends the name of the file that it received (acknowledgement).
+            Channel<std::string> receivedFileAcknowledgementChannel;
+
             std::string filePath;
 
         
             std::string completeFileListChannelName;
             std::string requestedFileListChannelName;
             std::string dataFileChannelName;
+            std::string receivedFilesAcknowledgementChannelName;
 
             int syncingPeriodInMs;
+            bool deleteFileAfterSync;
 
             void makePathRelative(std::string& path)
             {
@@ -112,6 +117,17 @@ namespace claid
                 sendRequestedFiles(missingFileList);
             }
 
+            void onFileReceivalAcknowledged(ChannelData<std::string> receivedFile)
+            {
+                if(this->deleteFileAfterSync)
+                {
+                    Logger::printfln("Received acknowledgement of file received %s, deleting it.", receivedFile->value().c_str());
+                    std::string path = this->filePath + std::string("/") + receivedFile->value();
+                    Logger::printfln("Deleting %s", path.c_str());
+                    FileUtils::removeFileIfExists(path);
+                }
+            }
+
             void periodicSync()
             {
                 Logger::printfln("!!!PERIODIC SYNC!!!");
@@ -122,10 +138,12 @@ namespace claid
             Reflect(FileSyncerModule,
                 reflectMember(filePath);
                 reflectMember(syncingPeriodInMs);
+                reflectMemberWithDefaultValue(deleteFileAfterSync, false);
 
                 reflectMemberWithDefaultValue(completeFileListChannelName, std::string("FileSyncer/CompleteFileList"));
                 reflectMemberWithDefaultValue(requestedFileListChannelName, std::string("FileSyncer/RequestedFileList"));
                 reflectMemberWithDefaultValue(dataFileChannelName, std::string("FileSyncer/DataFiles"));
+                reflectMemberWithDefaultValue(receivedFilesAcknowledgementChannelName, std::string("FileSyncer/ReceivedFilesAcknowledgement"));
             )
 
             void initialize()
@@ -139,6 +157,13 @@ namespace claid
                 this->completeFileListChannel = this->publish<std::vector<std::string>>(this->completeFileListChannelName);
                 this->requestedFileListChannel = this->subscribe<std::vector<std::string>>(this->requestedFileListChannelName, &FileSyncerModule::onFilesRequested, this);
                 this->dataFileChannel = this->publish<DataFile>(this->dataFileChannelName);
+
+                if(this->deleteFileAfterSync)
+                {
+                    // We only care to be informed about files that have been received if we shall delete them afterwards.
+                    // If not, we do not subscribe to this channel to reduce network load (if we do not subscribe, a remotely connected runtime will not send us data from that channel).
+                    this->receivedFileAcknowledgementChannel = this->subscribe(this->receivedFilesAcknowledgementChannelName, &FileSyncerModule::onFileReceivalAcknowledged, this);
+                }
 
                 this->registerPeriodicFunction("PeriodicSyncFunction", &FileSyncerModule::periodicSync, this, this->syncingPeriodInMs);
             }

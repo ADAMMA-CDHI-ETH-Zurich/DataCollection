@@ -34,10 +34,15 @@ namespace claid
             // On this channel, we receive files from the FileSyncerModule.
             Channel<DataFile> dataFileChannel;
 
+            // On this channel, we acknowledge received files.
+            // If "deleteFilesAfterSync" is activated in FileSyncerModule, it will delete the file locally.
+            Channel<std::string> receivedFilesAcknowledgementChannel;
+
             std::string filePath;
             std::string completeFileListChannelName;
             std::string requestedFileListChannelName;
             std::string dataFileChannelName;
+            std::string receivedFilesAcknowledgementChannelName;
 
             bool storeArrivalTimePerFile = false;
 
@@ -50,15 +55,16 @@ namespace claid
             // Get elements that are contained in both lists.
             void getMissingElements(
                     const std::vector<std::string>& completeList, 
-                    const std::vector<std::string>& localList,
                     std::vector<std::string>& missingList)
             {
                 missingList.clear();
-                for(const std::string& value : completeList)
-                {
-                    if(!this->isElementContainedInVector(localList, value))
+                std::string path;
+                for(const std::string& fileName : completeList)
+                {   
+                    path = this->filePath + std::string("/") + fileName;
+                    if(!FileUtils::fileExists(path))
                     {
-                        missingList.push_back(value);
+                        missingList.push_back(path);
                     }
                 }
             }
@@ -119,16 +125,13 @@ namespace claid
 
             void onCompleteFileListReceived(ChannelData<std::vector<std::string>> data)
             {
-                // Find the files we are missing in the folder.
-                std::vector<std::string> localList;
-                getListOfFilesInTargetDirectory(localList);
 
                 const std::vector<std::string>& completeList = data->value();
 
                 
 
                 std::vector<std::string> missingFiles;
-                getMissingElements(completeList, localList, missingFiles);
+                getMissingElements(completeList, missingFiles);
 
                 for(const std::string& value : missingFiles)
                 {
@@ -183,6 +186,9 @@ namespace claid
                     XMLDocument xmlDocument(serializer.getXMLNode());
                     xmlDocument.saveToFile(arrivalTimeStampPath);
                 }
+
+                // Send acknowledgement.
+                this->receivedFilesAcknowledgementChannel.post(dataFile.relativePath);
             }
 
             void setupStorageFolder()
@@ -204,17 +210,6 @@ namespace claid
                 }
             }
 
-        public:
-
-            Reflect(FileReceiverModule,
-                reflectMember(filePath);
-                reflectMemberWithDefaultValue(storeArrivalTimePerFile, false);
-
-                reflectMemberWithDefaultValue(completeFileListChannelName, std::string("FileSyncer/CompleteFileList"));
-                reflectMemberWithDefaultValue(requestedFileListChannelName, std::string("FileSyncer/RequestedFileList"));
-                reflectMemberWithDefaultValue(dataFileChannelName, std::string("FileSyncer/DataFiles"));
-            )
-
             void initialize()
             {
                 // Create output directory, if not exists.
@@ -227,7 +222,22 @@ namespace claid
                 this->completeFileListChannel = this->subscribe<std::vector<std::string>>(completeFileListChannelName, &FileReceiverModule::onCompleteFileListReceived, this);
                 this->requestedFileListChannel = this->publish<std::vector<std::string>>(requestedFileListChannelName);
                 this->dataFileChannel = this->subscribe<DataFile>(dataFileChannelName, &FileReceiverModule::onDataFileReceived, this);
+                this->receivedFilesAcknowledgementChannel = this->publish<std::string>(receivedFilesAcknowledgementChannelName);
             }
+
+        public:
+
+            Reflect(FileReceiverModule,
+                reflectMember(filePath);
+                reflectMemberWithDefaultValue(storeArrivalTimePerFile, false);
+
+                reflectMemberWithDefaultValue(completeFileListChannelName, std::string("FileSyncer/CompleteFileList"));
+                reflectMemberWithDefaultValue(requestedFileListChannelName, std::string("FileSyncer/RequestedFileList"));
+                reflectMemberWithDefaultValue(dataFileChannelName, std::string("FileSyncer/DataFiles"));
+                reflectMemberWithDefaultValue(receivedFilesAcknowledgementChannelName, std::string("FileSyncer/ReceivedFilesAcknowledgement"));
+            )
+
+           
 
 
     };
