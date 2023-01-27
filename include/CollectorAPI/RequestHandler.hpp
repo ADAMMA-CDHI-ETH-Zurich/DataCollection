@@ -21,6 +21,8 @@ namespace claid
 
             Channel<Untyped> dataChannel;
 
+            std::vector<ChannelData<Untyped>> dataBuffer;
+
             RequestModule* parent = nullptr;
 
             int existingRecordingsInDirectory = 0;
@@ -36,6 +38,12 @@ namespace claid
             void onData(ChannelData<Untyped> data);
 
             void periodicRequest();
+
+
+            void storeBinaryDataSample(TaggedData<BinaryData> binaryData, const std::string& suffix);
+            void storeXMLDataSample(std::shared_ptr<XMLNode> xml, const std::string& suffix);
+            void updateDataBundle();
+
 
             #ifdef __APPLE__
                 #if TARGET_OS_IPHONE

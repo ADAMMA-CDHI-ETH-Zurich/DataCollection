@@ -89,6 +89,7 @@ namespace claid
                 std::vector<std::string> fileList;
                 this->buildFileList(fileList);
                 this->completeFileListChannel.post(fileList);
+                Logger::printfln("Sending file list");
             }
 
             void sendRequestedFiles(const std::vector<std::string>& filesToSend)

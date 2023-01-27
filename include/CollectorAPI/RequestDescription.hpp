@@ -22,7 +22,7 @@ namespace claid
             int32_t period;
             std::string saveTo;
             std::string format;
-            bool storeArrivalTime;
+            int32_t bundleNSamplesIntoOne;
         
 
             Reflect(RequestDescription,
@@ -30,6 +30,7 @@ namespace claid
                 reflectMember(period);
                 reflectMemberWithDefaultValue(saveTo, std::string(""));
                 reflectMemberWithDefaultValue(format, std::string(""));
+                reflectMemberWithDefaultValue(bundleNSamplesIntoOne, -1);
             )
 
             void getDueHourMinuteSecond(int& hour, int& minute, int& second);
