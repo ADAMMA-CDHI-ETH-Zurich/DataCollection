@@ -34,7 +34,7 @@ namespace claid
             )
 
             
-            void initialize()
+            void postInitialize()
             {
                 Logger::printfln("RequestModule begin init %d", this->requestDescriptions.size());
                 this->requestChannel = this->publish<Request>(this->requestChannelName);

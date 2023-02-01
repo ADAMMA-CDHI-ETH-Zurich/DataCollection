@@ -166,7 +166,7 @@ namespace claid
                     this->receivedFileAcknowledgementChannel = this->subscribe<std::string>(this->receivedFilesAcknowledgementChannelName, &FileSyncerModule::onFileReceivalAcknowledged, this);
                 }
 
-                this->registerPeriodicFunction("PeriodicSyncFunction", &FileSyncerModule::periodicSync, this, this->syncingPeriodInMs);
+                this->registerPeriodicFunction("PeriodicSyncFunction", &FileSyncerModule::periodicSync, this, this->syncingPeriodInMs, true);
             }
 
             void postInitialize()

@@ -191,6 +191,11 @@ namespace claid
         #if TARGET_OS_IPHONE
         void RequestHandler::prependiOSDocumentsPathToFilePath()
         {
+            if(this->requestDescription.saveTo == "")
+            {
+                return;
+            }   
+            
             this->requestDescription.saveTo = iOSApplicationPathHelper::getAppDocumentsPath() + std::string("/") + this->requestDescription.saveTo;
         }
         #endif
