@@ -150,12 +150,14 @@ namespace claid
 
             void requestNextFile()
             {
+                printf("Requesting next file %d\n", this->missingFilesQueue.empty());
                 if(this->missingFilesQueue.empty())
                 {
                     return;
                 }
 
-                std::string file = this->missingFilesQueue.back();
+                std::string file = this->missingFilesQueue.front();
+                printf("Requesting file %s\n", file.c_str());
                 this->missingFilesQueue.pop();
                 this->requestedFileChannel.post(file);
             }
@@ -164,6 +166,7 @@ namespace claid
             {
                 std::cout << "Received data file " << data->value().relativePath << "\n";
 
+                this->requestNextFile();
                 const DataFile& dataFile = data->value();
 
                 const std::string& relativePath = dataFile.relativePath;
@@ -207,7 +210,6 @@ namespace claid
 
                 // Send acknowledgement.
                 this->receivedFilesAcknowledgementChannel.post(dataFile.relativePath);
-                this->requestNextFile();
             }
 
             void setupStorageFolder()
