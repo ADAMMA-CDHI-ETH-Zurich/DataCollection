@@ -110,12 +110,13 @@ namespace claid
             void onFileRequested(ChannelData<std::string> missingFileData)
             {
                 printf("Requested file\n");   
-
+                this->lastMessageFromFileReceiver = Time::now();
                 sendRequestedFile(missingFileData->value());
             }
 
             void onFileReceivalAcknowledged(ChannelData<std::string> receivedFile)
             {
+                this->lastMessageFromFileReceiver = Time::now();
                 if(this->deleteFileAfterSync)
                 {
                     Logger::printfln("Received acknowledgement of file received %s, deleting it.", receivedFile->value().c_str());
