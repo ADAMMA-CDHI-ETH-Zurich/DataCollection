@@ -32,10 +32,8 @@ namespace claid
             // On this channel, we post all the files available
             Channel<std::vector<std::string>> completeFileListChannel;
 
-            // On this channel, we receive the list of files
-            // that are missing on the receiver files.
-            // This will be a subset of the list send in the completeFileListChannel.
-            Channel<std::vector<std::string>> requestedFileListChannel;
+            // On this channel, the FileReceiver can request files that we will send.
+            Channel<std::string> requestedFileChannel;
 
             // On this channel, we post the actual files.
             Channel<DataFile> dataFileChannel;
@@ -45,9 +43,10 @@ namespace claid
 
             std::string filePath;
 
+            Time lastMessageFromFileReceiver;
         
             std::string completeFileListChannelName;
-            std::string requestedFileListChannelName;
+            std::string requestedFileChannelName;
             std::string dataFileChannelName;
             std::string receivedFilesAcknowledgementChannelName;
 
@@ -92,30 +91,27 @@ namespace claid
                 Logger::printfln("Sending file list");
             }
 
-            void sendRequestedFiles(const std::vector<std::string>& filesToSend)
+            void sendRequestedFile(const std::string& relativeFilePath)
             {
-                for(const std::string& relativePath : filesToSend)
-                {
-                                    printf("Requested file %s\n", relativePath.c_str());
+                printf("Requested file %s\n", relativeFilePath.c_str());
 
-                    DataFile file;
-                    std::string path = this->filePath + std::string("/") + relativePath;
-                    if(!file.loadFromPath(path))
-                    {
-                        CLAID_THROW(Exception, "Error in FileSyncerModule, file \"" << path << "\" was requested to be sent,\n"
-                        << "but it could not be loaded from the filesystem. Either the file does not exist or we do not have permission to read it.");
-                    }
-                    file.relativePath = relativePath;
-                    this->dataFileChannel.post(file);
+                DataFile file;
+                std::string path = this->filePath + std::string("/") + relativeFilePath;
+                if(!file.loadFromPath(path))
+                {
+                    return;
+                    // CLAID_THROW(Exception, "Error in FileSyncerModule, file \"" << path << "\" was requested to be sent,\n"
+                    // << "but it could not be loaded from the filesystem. Either the file does not exist or we do not have permission to read it.");
                 }
+                file.relativePath = relativeFilePath;
+                this->dataFileChannel.post(file);
             }
 
-            void onFilesRequested(ChannelData<std::vector<std::string>> missingFileListData)
+            void onFileRequested(ChannelData<std::string> missingFileData)
             {
-                printf("Requested files\n");   
-                const std::vector<std::string>& missingFileList = missingFileListData->value();
-                
-                sendRequestedFiles(missingFileList);
+                printf("Requested file\n");   
+
+                sendRequestedFile(missingFileData->value());
             }
 
             void onFileReceivalAcknowledged(ChannelData<std::string> receivedFile)
@@ -129,10 +125,23 @@ namespace claid
                 }
             }
 
+            size_t millisecondsSinceLastMessageFromFileReceiver()
+            {
+                size_t diff = std::chrono::duration_cast<std::chrono::milliseconds>((Time::now() - lastMessageFromFileReceiver)).count();
+                
+                return diff;
+            }
+
             void periodicSync()
             {
-                Logger::printfln("!!!PERIODIC SYNC!!!");
-                sendFileList();
+                // If a previous syncing process is still going on (e.g., file receiver is still requesting files),
+                // do not start a new syncing process just yet.
+                if(millisecondsSinceLastMessageFromFileReceiver() >= this->syncingPeriodInMs / 2)
+                {
+                    Logger::printfln("!!!PERIODIC SYNC!!!");
+                    sendFileList();
+                }
+                
             }
 
         public:
@@ -142,7 +151,7 @@ namespace claid
                 reflectMemberWithDefaultValue(deleteFileAfterSync, false);
 
                 reflectMemberWithDefaultValue(completeFileListChannelName, std::string("FileSyncer/CompleteFileList"));
-                reflectMemberWithDefaultValue(requestedFileListChannelName, std::string("FileSyncer/RequestedFileList"));
+                reflectMemberWithDefaultValue(requestedFileChannelName, std::string("FileSyncer/RequestedFileList"));
                 reflectMemberWithDefaultValue(dataFileChannelName, std::string("FileSyncer/DataFiles"));
                 reflectMemberWithDefaultValue(receivedFilesAcknowledgementChannelName, std::string("FileSyncer/ReceivedFilesAcknowledgement"));
             )
@@ -156,16 +165,13 @@ namespace claid
                 #endif
 
                 this->completeFileListChannel = this->publish<std::vector<std::string>>(this->completeFileListChannelName);
-                this->requestedFileListChannel = this->subscribe<std::vector<std::string>>(this->requestedFileListChannelName, &FileSyncerModule::onFilesRequested, this);
+                this->requestedFileChannel = this->subscribe<std::string>(this->requestedFileChannelName, &FileSyncerModule::onFileRequested, this);
                 this->dataFileChannel = this->publish<DataFile>(this->dataFileChannelName);
 
-                if(this->deleteFileAfterSync)
-                {
-                    // We only care to be informed about files that have been received if we shall delete them afterwards.
-                    // If not, we do not subscribe to this channel to reduce network load (if we do not subscribe, a remotely connected runtime will not send us data from that channel).
-                    this->receivedFileAcknowledgementChannel = this->subscribe<std::string>(this->receivedFilesAcknowledgementChannelName, &FileSyncerModule::onFileReceivalAcknowledged, this);
-                }
-
+                 
+                this->receivedFileAcknowledgementChannel = this->subscribe<std::string>(this->receivedFilesAcknowledgementChannelName, &FileSyncerModule::onFileReceivalAcknowledged, this);
+                
+                this->lastMessageFromFileReceiver = Time::now();
                 this->registerPeriodicFunction("PeriodicSyncFunction", &FileSyncerModule::periodicSync, this, this->syncingPeriodInMs, true);
             }
 

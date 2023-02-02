@@ -10,7 +10,7 @@
     #include "CollectorAPI/iOSHelper/iOSApplicationPathHelper.hpp"
     #endif
 #endif
-
+#include <queue>
 namespace claid
 {
     // Counterpart to FileSyncerModule.
@@ -26,10 +26,9 @@ namespace claid
             // On this channel, we receive all the files available
             Channel<std::vector<std::string>> completeFileListChannel;
 
-            // On this channel, we post the list of files
-            // that are missing.
-            // This will be a subset of the list send in the completeFileListChannel.
-            Channel<std::vector<std::string>> requestedFileListChannel;
+            // On this channel, we post files that are missing.
+            // They will be send by the FileSyncerModule.
+            Channel<std::string> requestedFileChannel;
 
             // On this channel, we receive files from the FileSyncerModule.
             Channel<DataFile> dataFileChannel;
@@ -40,11 +39,13 @@ namespace claid
 
             std::string filePath;
             std::string completeFileListChannelName;
-            std::string requestedFileListChannelName;
+            std::string requestedFileChannelName;
             std::string dataFileChannelName;
             std::string receivedFilesAcknowledgementChannelName;
 
             bool storeArrivalTimePerFile = false;
+
+            std::queue<std::string> missingFilesQueue;
 
             template<typename T>
             bool isElementContainedInVector(const std::vector<T>& vector, const T& element)
@@ -136,13 +137,27 @@ namespace claid
                 std::vector<std::string> missingFiles;
                 getMissingElements(completeList, missingFiles);
 
+                this->missingFilesQueue = std::queue<std::string>();
+
                 for(const std::string& value : missingFiles)
                 {
+                    this->missingFilesQueue.push(value);
                     Logger::printfln("Missing %s", value.c_str());
                 }
-                // Send the list of missing files to the FileSyncerModule.
-                // Afterwards, it will send us the missing files.
-                this->requestedFileListChannel.post(missingFiles);
+                
+                this->requestNextFile();
+            }
+
+            void requestNextFile()
+            {
+                if(this->missingFilesQueue.empty())
+                {
+                    return;
+                }
+
+                std::string file = this->missingFilesQueue.back();
+                this->missingFilesQueue.pop();
+                this->requestedFileChannel.post(file);
             }
 
             void onDataFileReceived(ChannelData<DataFile> data)
@@ -192,6 +207,7 @@ namespace claid
 
                 // Send acknowledgement.
                 this->receivedFilesAcknowledgementChannel.post(dataFile.relativePath);
+                this->requestNextFile();
             }
 
             void setupStorageFolder()
@@ -223,7 +239,7 @@ namespace claid
                 getListOfFilesInTargetDirectory(output);
 
                 this->completeFileListChannel = this->subscribe<std::vector<std::string>>(completeFileListChannelName, &FileReceiverModule::onCompleteFileListReceived, this);
-                this->requestedFileListChannel = this->publish<std::vector<std::string>>(requestedFileListChannelName);
+                this->requestedFileChannel = this->publish<std::string>(requestedFileChannelName);
                 this->dataFileChannel = this->subscribe<DataFile>(dataFileChannelName, &FileReceiverModule::onDataFileReceived, this);
                 this->receivedFilesAcknowledgementChannel = this->publish<std::string>(receivedFilesAcknowledgementChannelName);
             }
@@ -235,7 +251,7 @@ namespace claid
                 reflectMemberWithDefaultValue(storeArrivalTimePerFile, false);
 
                 reflectMemberWithDefaultValue(completeFileListChannelName, std::string("FileSyncer/CompleteFileList"));
-                reflectMemberWithDefaultValue(requestedFileListChannelName, std::string("FileSyncer/RequestedFileList"));
+                reflectMemberWithDefaultValue(requestedFileChannelName, std::string("FileSyncer/RequestedFileList"));
                 reflectMemberWithDefaultValue(dataFileChannelName, std::string("FileSyncer/DataFiles"));
                 reflectMemberWithDefaultValue(receivedFilesAcknowledgementChannelName, std::string("FileSyncer/ReceivedFilesAcknowledgement"));
             )
