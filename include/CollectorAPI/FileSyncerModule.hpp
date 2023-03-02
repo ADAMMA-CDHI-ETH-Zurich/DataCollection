@@ -26,7 +26,6 @@ namespace claid
     // 6th The FileReceiverModule saves each file.
     class FileSyncerModule : public Module
     {
-        DECLARE_MODULE(FileSyncerModule)
         
         private:
             // On this channel, we post all the files available

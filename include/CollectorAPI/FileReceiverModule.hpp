@@ -19,7 +19,6 @@ namespace claid
     // and stored in the path.
     class FileReceiverModule : public Module
     {
-        DECLARE_MODULE(FileReceiverModule)
 
         private:
 

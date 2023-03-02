@@ -11,7 +11,6 @@ namespace claid
 {
     struct Request
     {
-        DECLARE_SERIALIZATION(Request)
         public:
 
             std::string dataIdentifier = "";
