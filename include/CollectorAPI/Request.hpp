@@ -29,3 +29,4 @@ namespace claid
             // Time calculateNextExecutionTime(const Time& lastExecutionDescription);       
     };
 }
+

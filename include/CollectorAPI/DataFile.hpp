@@ -15,6 +15,7 @@ namespace claid
         std::string relativePath;
         BinaryData binaryData;
 
+
         Reflect(DataFile,
             reflectMember(relativePath);
             reflectMember(binaryData);
