@@ -19,7 +19,7 @@ namespace claid
             
 
             Reflect(DataSaverModule, 
-                ListReflector<std::vector<RequestDescription>>("save", this->fileSavers).reflect(reflector);
+                ListReflector<std::vector<FileSaver>>("save", this->fileSavers).reflect(reflector);
                 
             )
     };

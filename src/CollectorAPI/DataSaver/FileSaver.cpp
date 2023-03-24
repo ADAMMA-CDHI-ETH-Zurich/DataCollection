@@ -14,7 +14,8 @@ namespace claid
         std::string dataTypeName = this->dataChannel.getChannelDataTypeName();
         std::string reflectorName = this->serializer->getReflectorName();
 
-        data.applySerializerToData(this->serializer);
+        this->serializer->forceReset();
+        data.applySerializerToData(this->serializer, true);
 
         std::vector<char> writeableData;
         this->serializer.get()->getDataWriteableToFile(writeableData);
@@ -32,8 +33,7 @@ namespace claid
             std::string folderPath = path.getFolderPath();
             this->createDirectoriesRecursively(folderPath);
 
-            std::string filePath = path.getFilePath();
-            this->openFile(filePath);
+            this->openFile(path.toString());
         }
 
         this->file.write(data.data(), data.size());
@@ -47,6 +47,10 @@ namespace claid
      
     void FileSaver::createDirectoriesRecursively(const std::string& path)
     {
+        if(FileUtils::dirExists(path))
+        {
+            return;
+        }
         if(!FileUtils::createDirectoriesRecursively(path))
         {
             CLAID_THROW(Exception, "Error in FileSaver of DataSaverModule: Failed to create one or more directories of the following path: " << path);
