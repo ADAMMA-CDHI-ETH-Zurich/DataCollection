@@ -15,8 +15,11 @@ namespace claid
         private:
             std::shared_ptr<AbstractSerializer> serializer;
             std::string what;
-            std::string storagePathFormat;
-
+            std::string storagePath;
+            std::string fileNameFormat;
+            bool excludeHeader;
+            
+            std::string tmpStoragePath;
             
             DataSaverModule* parentModule = nullptr;
             Path lastPath;
@@ -28,16 +31,27 @@ namespace claid
             Reflect(FileSaver,
                 reflectMember(serializer);
                 reflectMember(what);
-                reflectMember(storagePathFormat);
+                reflectMember(storagePath);
+                reflectMember(fileNameFormat);
+                reflectMemberWithDefaultValue(excludeHeader, false);
+                reflectMemberWithDefaultValue(tmpStoragePath, std::string(""));
             )
 
 
             void initialize(DataSaverModule* parentModule);
             void onData(ChannelData<Untyped> data);
             void storeData(std::vector<char>& data);
+            void storeDataHeader(std::vector<char>& dataHeader);
     
-            void getCurrentPath(Path& path);
+            void getCurrentPathRelativeToStorageFolder(Path& path);
             void createDirectoriesRecursively(const std::string& path);
             void openFile(const std::string& path);
+            
+            void moveTemporaryFilesToStorageDestination();
+
+            void createStorageFolder(const Path& currentSavePath);
+            void createTmpFolderIfRequired(const Path& currentSavePath);
+
+
     };
 }
