@@ -28,6 +28,12 @@ namespace claid
 
         public:
 
+            // template<typename Reflector>
+            // void reflect(Reflector& reflector)
+            // {
+            // reflector.member("serializer", serializer, "");
+
+            // }
             Reflect(FileSaver,
                 reflectMember(serializer);
                 reflectMember(what);

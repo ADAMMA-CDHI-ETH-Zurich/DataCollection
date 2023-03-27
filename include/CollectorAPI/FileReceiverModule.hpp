@@ -201,7 +201,7 @@ namespace claid
                         this->filePath + std::string("/") + folderPath + std::string("/") + filePath + std::string("_arrival.xml");
                     
                     XMLSerializer serializer;
-                    serializer.serialize(arrivalTime);
+                    serializer.serialize("Data", arrivalTime);
 
                     XMLDocument xmlDocument(serializer.getXMLNode());
                     xmlDocument.saveToFile(arrivalTimeStampPath);
