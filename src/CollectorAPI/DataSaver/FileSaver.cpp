@@ -7,6 +7,9 @@ namespace claid
     {  
         this->parentModule = parentModule;
         this->dataChannel = this->parentModule->subscribe<Untyped>(this->what, &FileSaver::onData, this);
+
+        this->createStorageFolder(Path(""));
+        this->createTmpFolderIfRequired(Path(""));
     }
 
     void FileSaver::onData(ChannelData<Untyped> data)
@@ -18,42 +21,52 @@ namespace claid
 
         std::vector<char> writeableData;
         this->serializer.get()->getDataWriteableToFile(writeableData);
-        storeData(writeableData);
+
+        Path path;
+        this->getCurrentPathRelativeToStorageFolder(path, data.getTimestamp());
+        storeData(path, writeableData, data);
     }
 
-    void FileSaver::storeData(std::vector<char>& data)
+    void FileSaver::storeData(const Path& path, std::vector<char>& data, ChannelData<Untyped>& d)
     {
-        Path path;
-        this->getCurrentPathRelativeToStorageFolder(path);
-
-        if(path != this->lastPath)
+        Path oldPath = path;
+        Path oldCurrentPath = this->currentPath;
+        if(path != this->currentPath)
         {
-            this->file.close();
-
-            this->createStorageFolder(path);
-            this->createTmpFolderIfRequired(path);
-
-            if(this->tmpStoragePath != "")
-            {
-                this->moveTemporaryFilesToStorageDestination();
-                this->openFile(Path::join(this->tmpStoragePath, path).toString());
-            }
-            else
-            {
-                this->openFile(Path::join(this->storagePath, path).toString());
-            }
-
-            std::vector<char> headerData;
-            this->serializer->getHeaderWriteableToFile(headerData);
-            this->storeDataHeader(headerData);
-            this->lastPath = path;
+            this->currentPath = path;
+            beginNewFile(this->currentPath);
         }
 
         this->file.write(data.data(), data.size());
 
-        std::string newLine = "\n";
-        this->file.write(newLine.data(), newLine.size());
+        this->file << "," <<  d.getTimestamp().toUnixTimestampMilliseconds() << "," << d.getHeader().timestamp.strftime(this->fileNameFormat.c_str());
+        this->file << "," <<  oldPath.toString() << "," << oldCurrentPath.toString() << "," << path.toString() << "," << currentPath.toString() << "," ;
+
+        this->file << "\n";
+
+    }
+
+    void FileSaver::beginNewFile(const Path& path)
+    {
         this->file.flush();
+        this->file.close();
+
+        this->createStorageFolder(path);
+        this->createTmpFolderIfRequired(path);
+
+        if(this->tmpStoragePath != "")
+        {
+            this->moveTemporaryFilesToStorageDestination();
+            this->openFile(Path::join(this->tmpStoragePath, path).toString());
+        }
+        else
+        {
+            this->openFile(Path::join(this->storagePath, path).toString());
+        }
+
+        std::vector<char> headerData;
+        this->serializer->getHeaderWriteableToFile(headerData);
+        this->storeDataHeader(headerData);
     }
 
     void FileSaver::storeDataHeader(std::vector<char>& dataHeader)
@@ -64,13 +77,12 @@ namespace claid
         }
 
         this->file.write(dataHeader.data(), dataHeader.size());
-        std::string newLine = "\n";
-        this->file.write(newLine.data(), newLine.size());
+        this->file << "\n";
     }
 
-    void FileSaver::getCurrentPathRelativeToStorageFolder(Path& path)
+    void FileSaver::getCurrentPathRelativeToStorageFolder(Path& path, const Time timestamp)
     {
-        Time time = Time::now();
+        Time time = timestamp;
         path = Path(time.strftime(this->fileNameFormat.c_str()));
         //path = Path::join(this->storagePath, path.toString());
     }
@@ -129,6 +141,13 @@ namespace claid
             
             std::string relativePath = path.getPathRelativeTo(this->tmpStoragePath);
 
+            // Don't move the currently active file.
+            Logger::printfln("Current path : %s Relative path: %s", currentPath.toString().c_str(), relativePath.c_str());
+            if(relativePath == this->currentPath.toString())
+            {
+                Logger::printfln("Current path is relative path, not moving.");
+                continue;
+            }
             // If a file already exists at storage path (which it shoudln't!), then it will not be overriden but appended.
             if(!FileUtils::moveFileTo(Path::join(this->tmpStoragePath, relativePath), Path::join(this->storagePath, relativePath), true))
             {

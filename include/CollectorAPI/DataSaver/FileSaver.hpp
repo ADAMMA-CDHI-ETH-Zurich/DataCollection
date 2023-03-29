@@ -22,7 +22,7 @@ namespace claid
             std::string tmpStoragePath;
             
             DataSaverModule* parentModule = nullptr;
-            Path lastPath;
+            Path currentPath;
             std::ofstream file;
             Channel<Untyped> dataChannel;
 
@@ -46,13 +46,15 @@ namespace claid
 
             void initialize(DataSaverModule* parentModule);
             void onData(ChannelData<Untyped> data);
-            void storeData(std::vector<char>& data);
+            void storeData(const Path& path, std::vector<char>& data, ChannelData<Untyped>& d);
             void storeDataHeader(std::vector<char>& dataHeader);
     
-            void getCurrentPathRelativeToStorageFolder(Path& path);
+            void getCurrentPathRelativeToStorageFolder(Path& path, const Time timestamp);
             void createDirectoriesRecursively(const std::string& path);
+            void beginNewFile(const Path& path);
             void openFile(const std::string& path);
             
+
             void moveTemporaryFilesToStorageDestination();
 
             void createStorageFolder(const Path& currentSavePath);
