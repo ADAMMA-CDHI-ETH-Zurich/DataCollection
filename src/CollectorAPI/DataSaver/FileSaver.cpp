@@ -24,11 +24,14 @@ namespace claid
 
         Path path;
         this->getCurrentPathRelativeToStorageFolder(path, data.getTimestamp());
-        storeData(path, writeableData, data);
+        storeData(writeableData, data);
     }
 
-    void FileSaver::storeData(const Path& path, std::vector<char>& data, ChannelData<Untyped>& d)
+    void FileSaver::storeData(std::vector<char>& data, ChannelData<Untyped>& d)
     {
+        std::string pathStr = d.getHeader().timestamp.strftime(this->fileNameFormat.c_str());
+        Path path(pathStr);
+
         Path oldPath = path;
         Path oldCurrentPath = this->currentPath;
         if(path != this->currentPath)
@@ -39,8 +42,8 @@ namespace claid
 
         this->file.write(data.data(), data.size());
 
-        this->file << "," <<  d.getTimestamp().toUnixTimestampMilliseconds() << "," << d.getHeader().timestamp.strftime(this->fileNameFormat.c_str());
-        this->file << "," <<  oldPath.toString() << "," << oldCurrentPath.toString() << "," << path.toString() << "," << currentPath.toString() << "," ;
+        // this->file << "," <<  d.getTimestamp().toUnixTimestampMilliseconds() << "," << d.getHeader().timestamp.strftime(this->fileNameFormat.c_str()) << "," << pathStr;
+        // this->file << "," <<  oldPath.toString() << "," << oldCurrentPath.toString() << "," << path.toString() << "," << currentPath.toString() << "," ;
 
         this->file << "\n";
 

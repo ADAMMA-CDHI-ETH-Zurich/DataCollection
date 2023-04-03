@@ -46,7 +46,7 @@ namespace claid
 
             void initialize(DataSaverModule* parentModule);
             void onData(ChannelData<Untyped> data);
-            void storeData(const Path& path, std::vector<char>& data, ChannelData<Untyped>& d);
+            void storeData(std::vector<char>& data, ChannelData<Untyped>& d);
             void storeDataHeader(std::vector<char>& dataHeader);
     
             void getCurrentPathRelativeToStorageFolder(Path& path, const Time timestamp);
