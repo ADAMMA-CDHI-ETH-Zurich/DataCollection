@@ -14,22 +14,25 @@ namespace claid
 
     void FileSaver::onData(ChannelData<Untyped> data)
     {
+        this->storeData(data);
+    }
+
+    void FileSaver::storeData(ChannelData<Untyped>& data)
+    {
         std::string dataTypeName = this->dataChannel.getChannelDataTypeName();
         std::string reflectorName = this->serializer->getReflectorName();
 
         data.applySerializerToData(this->serializer, !this->excludeHeader);
 
-        std::vector<char> writeableData;
-        this->serializer.get()->getDataWriteableToFile(writeableData);
+        // This has to be done BEFORE calling strftime! Otherwise strftime will throw an exception, 
+        // if any of custom %identifier values are present.
+        std::string pathStr = this->fileNameFormat;
+        
+        claid::StringUtils::stringReplaceAll(pathStr, "\%sequence_id", std::to_string(data.getSequenceID()));
+        claid::StringUtils::stringReplaceAll(pathStr, "\%timestamp", std::to_string(data.getTimestamp().toUnixTimestampMilliseconds()));
+       
+        pathStr = data.getHeader().timestamp.strftime(pathStr.c_str());
 
-        Path path;
-        this->getCurrentPathRelativeToStorageFolder(path, data.getTimestamp());
-        storeData(writeableData, data);
-    }
-
-    void FileSaver::storeData(std::vector<char>& data, ChannelData<Untyped>& d)
-    {
-        std::string pathStr = d.getHeader().timestamp.strftime(this->fileNameFormat.c_str());
         Path path(pathStr);
 
         Path oldPath = path;
@@ -40,47 +43,38 @@ namespace claid
             beginNewFile(this->currentPath);
         }
 
-        this->file.write(data.data(), data.size());
-
-        // this->file << "," <<  d.getTimestamp().toUnixTimestampMilliseconds() << "," << d.getHeader().timestamp.strftime(this->fileNameFormat.c_str()) << "," << pathStr;
-        // this->file << "," <<  oldPath.toString() << "," << oldCurrentPath.toString() << "," << path.toString() << "," << currentPath.toString() << "," ;
-
-        this->file << "\n";
-
+        bool append = true;
+        this->serializer->writeDataToFile(this->getCurrentFilePath(), append);
     }
 
     void FileSaver::beginNewFile(const Path& path)
     {
-        this->file.flush();
-        this->file.close();
-
         this->createStorageFolder(path);
         this->createTmpFolderIfRequired(path);
 
         if(this->tmpStoragePath != "")
         {
             this->moveTemporaryFilesToStorageDestination();
-            this->openFile(Path::join(this->tmpStoragePath, path).toString());
+            this->currentFilePath = Path::join(this->tmpStoragePath, path).toString();
         }
         else
         {
-            this->openFile(Path::join(this->storagePath, path).toString());
+            this->currentFilePath = (Path::join(this->storagePath, path).toString());
         }
-
-        std::vector<char> headerData;
-        this->serializer->getHeaderWriteableToFile(headerData);
-        this->storeDataHeader(headerData);
+      
+        bool append = true;
+        this->serializer->writeHeaderToFile(this->getCurrentFilePath(), append);
     }
 
-    void FileSaver::storeDataHeader(std::vector<char>& dataHeader)
+    std::string FileSaver::getCurrentFilePath()
     {
-        if(dataHeader.size() == 0)
-        {
-            return;
-        }
+        return this->currentFilePath;
+    }
 
-        this->file.write(dataHeader.data(), dataHeader.size());
-        this->file << "\n";
+    void FileSaver::storeDataHeader(const Path& path)
+    {
+        bool append = true;
+        this->serializer->writeHeaderToFile(path, append);
     }
 
     void FileSaver::getCurrentPathRelativeToStorageFolder(Path& path, const Time timestamp)
@@ -99,16 +93,6 @@ namespace claid
         if(!FileUtils::createDirectoriesRecursively(path))
         {
             CLAID_THROW(Exception, "Error in FileSaver of DataSaverModule: Failed to create one or more directories of the following path: " << path);
-        }
-    }
-
-    void FileSaver::openFile(const std::string& path)
-    {
-        this->file = std::ofstream(path, std::ios::app | std::ios::binary);
-
-        if(!this->file.is_open())
-        {
-            CLAID_THROW(Exception, "Error in FileSaver of DataSaverModule: Failed to open file \"" << path << "\" for writing.");
         }
     }
 

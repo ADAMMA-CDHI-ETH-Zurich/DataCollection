@@ -20,11 +20,12 @@ namespace claid
             bool excludeHeader;
             
             std::string tmpStoragePath;
-            
+            std::string currentFilePath;
+
             DataSaverModule* parentModule = nullptr;
             Path currentPath;
-            std::ofstream file;
             Channel<Untyped> dataChannel;
+
 
         public:
 
@@ -43,11 +44,12 @@ namespace claid
                 reflectMemberWithDefaultValue(tmpStoragePath, std::string(""));
             )
 
+            std::string getCurrentFilePath();
 
             void initialize(DataSaverModule* parentModule);
             void onData(ChannelData<Untyped> data);
-            void storeData(std::vector<char>& data, ChannelData<Untyped>& d);
-            void storeDataHeader(std::vector<char>& dataHeader);
+            void storeData(ChannelData<Untyped>& d);
+            void storeDataHeader(const Path& path);
     
             void getCurrentPathRelativeToStorageFolder(Path& path, const Time timestamp);
             void createDirectoriesRecursively(const std::string& path);
