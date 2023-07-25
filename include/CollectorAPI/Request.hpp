@@ -11,7 +11,6 @@ namespace claid
 {
     struct Request
     {
-        DECLARE_SERIALIZATION(Request)
         public:
 
             std::string dataIdentifier = "";
@@ -30,3 +29,4 @@ namespace claid
             // Time calculateNextExecutionTime(const Time& lastExecutionDescription);       
     };
 }
+

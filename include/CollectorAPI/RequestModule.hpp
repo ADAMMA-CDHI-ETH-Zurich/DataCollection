@@ -12,7 +12,6 @@ namespace claid
     {
         friend class RequestHandler;
 
-        DECLARE_MODULE(RequestModule)
 
         private:
             std::vector<RequestDescription> requestDescriptions;

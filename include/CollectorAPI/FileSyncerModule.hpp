@@ -26,7 +26,6 @@ namespace claid
     // 6th The FileReceiverModule saves each file.
     class FileSyncerModule : public Module
     {
-        DECLARE_MODULE(FileSyncerModule)
         
         private:
             // On this channel, we post all the files available
@@ -72,8 +71,9 @@ namespace claid
                 fileList.clear();
                 if(!FileUtils::getAllFilesInDirectoryRecursively(this->filePath, fileList))
                 {
-                    CLAID_THROW(Exception, "Error in FileSyncerModule, cannot scan directory \"" << this->filePath << "\" "
-                    << "for files. Directory either does not exist or we do not have reading permissions.");
+                    return;
+                    //CLAID_THROW(Exception, "Error in FileSyncerModule, cannot scan directory \"" << this->filePath << "\" "
+                    //<< "for files. Directory either does not exist or we do not have reading permissions.");
                 }
 
                 for(std::string& path : fileList)

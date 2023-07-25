@@ -4,7 +4,6 @@ namespace claid
 {
     struct RepetitionDescription
     {
-        DECLARE_SERIALIZATION(RepetitionDescription)
         /*  Specifies when to repeat a data request after the previous request.
             E.g. 2.5hrs after the last request finished 
                 For Collectors that record data over time, this means the request is repeated 2.5 hrs AFTER the recording has FINISHED.
