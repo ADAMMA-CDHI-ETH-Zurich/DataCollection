@@ -8,8 +8,13 @@ namespace claid
         this->parentModule = parentModule;
         this->dataChannel = this->parentModule->subscribe<Untyped>(this->what, &FileSaver::onData, this);
 
+        std::string channelName = this->what;
+        claid::StringUtils::stringReplaceAll(channelName, "/", "_");
+        claid::StringUtils::stringReplaceAll(this->storagePath, "\%channel_name", channelName);
+
         this->createStorageFolder(Path(""));
         this->createTmpFolderIfRequired(Path(""));
+
     }
 
     void FileSaver::onData(ChannelData<Untyped> data)
