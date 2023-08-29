@@ -1,3 +1,3 @@
-#include "CollectorAPI/FileSyncerModule.hpp"
+#include "CollectorAPI/DataSyncModule.hpp"
 
-REGISTER_MODULE(claid::FileSyncerModule)
+REGISTER_MODULE(claid::DataSyncModule)

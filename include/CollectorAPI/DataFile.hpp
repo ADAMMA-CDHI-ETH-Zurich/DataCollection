@@ -3,8 +3,8 @@
 #include <fstream>
 namespace claid
 {
-    // Used by FileSyncerModule to send files on the filesystem
-    // to a FileReceiverModule.
+    // Used by DataSyncModule to send files on the filesystem
+    // to a DataReceiverModule.
     // Allows to load and save any file from/on the filesystem.
     // All files are loaded in binary mode and not in text mode
     // (but of course, this still works for text files etc.).

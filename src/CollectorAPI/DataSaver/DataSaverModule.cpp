@@ -12,4 +12,3 @@ namespace claid
 }
 
 REGISTER_MODULE(claid::DataSaverModule)
-

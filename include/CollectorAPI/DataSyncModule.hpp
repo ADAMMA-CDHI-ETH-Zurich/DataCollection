@@ -14,17 +14,17 @@
 
 namespace claid
 {
-    // Syncs files contained in a certain directory with a FileReceiverModule.
+    // Syncs files contained in a certain directory with a DataReceiverModule.
     // This works in multiple steps:
-    // 1st The FileSyncerModule scans the specified directory and builds a list of available files.
-    // 2nd This list is posted to a channel that the FileReceiverModule listens on.
-    // 3rd The FileReceiverModule build a list of available files in the target directory aswell and compares
-    // it with the list received from the FileSyncerModule.
-    // 4th The FileReceiverModule sends back a list of the files that are missing on it's side; this list is a subset
-    // of the original list containing all files sent by the FileSyncerModule.
-    // 5th The FileSyncerModule posts each file (in binary format) to the dataChannel, along with the target path.
-    // 6th The FileReceiverModule saves each file.
-    class FileSyncerModule : public Module
+    // 1st The DataSyncModule scans the specified directory and builds a list of available files.
+    // 2nd This list is posted to a channel that the DataReceiverModule listens on.
+    // 3rd The DataReceiverModule build a list of available files in the target directory aswell and compares
+    // it with the list received from the DataSyncModule.
+    // 4th The DataReceiverModule sends back a list of the files that are missing on it's side; this list is a subset
+    // of the original list containing all files sent by the DataSyncModule.
+    // 5th The DataSyncModule posts each file (in binary format) to the dataChannel, along with the target path.
+    // 6th The DataReceiverModule saves each file.
+    class DataSyncModule : public Module
     {
         
         private:
@@ -72,7 +72,7 @@ namespace claid
                 if(!FileUtils::getAllFilesInDirectoryRecursively(this->filePath, fileList))
                 {
                     return;
-                    //CLAID_THROW(Exception, "Error in FileSyncerModule, cannot scan directory \"" << this->filePath << "\" "
+                    //CLAID_THROW(Exception, "Error in DataSyncModule, cannot scan directory \"" << this->filePath << "\" "
                     //<< "for files. Directory either does not exist or we do not have reading permissions.");
                 }
 
@@ -100,7 +100,7 @@ namespace claid
                 if(!file.loadFromPath(path))
                 {
                     return;
-                    // CLAID_THROW(Exception, "Error in FileSyncerModule, file \"" << path << "\" was requested to be sent,\n"
+                    // CLAID_THROW(Exception, "Error in DataSyncModule, file \"" << path << "\" was requested to be sent,\n"
                     // << "but it could not be loaded from the filesystem. Either the file does not exist or we do not have permission to read it.");
                 }
                 file.relativePath = relativeFilePath;
@@ -146,7 +146,7 @@ namespace claid
             }
 
         public:
-            Reflect(FileSyncerModule,
+            Reflect(DataSyncModule,
                 reflectMember(filePath);
                 reflectMember(syncingPeriodInMs);
                 reflectMemberWithDefaultValue(deleteFileAfterSync, false);
@@ -166,14 +166,14 @@ namespace claid
                 #endif
 
                 this->completeFileListChannel = this->publish<std::vector<std::string>>(this->completeFileListChannelName);
-                this->requestedFileChannel = this->subscribe<std::string>(this->requestedFileChannelName, &FileSyncerModule::onFileRequested, this);
+                this->requestedFileChannel = this->subscribe<std::string>(this->requestedFileChannelName, &DataSyncModule::onFileRequested, this);
                 this->dataFileChannel = this->publish<DataFile>(this->dataFileChannelName);
 
                  
-                this->receivedFileAcknowledgementChannel = this->subscribe<std::string>(this->receivedFilesAcknowledgementChannelName, &FileSyncerModule::onFileReceivalAcknowledged, this);
+                this->receivedFileAcknowledgementChannel = this->subscribe<std::string>(this->receivedFilesAcknowledgementChannelName, &DataSyncModule::onFileReceivalAcknowledged, this);
                 
                 this->lastMessageFromFileReceiver = Time::now();
-                this->registerPeriodicFunction("PeriodicSyncFunction", &FileSyncerModule::periodicSync, this, this->syncingPeriodInMs, true);
+                this->registerPeriodicFunction("PeriodicSyncFunction", &DataSyncModule::periodicSync, this, this->syncingPeriodInMs);
             }
 
             void postInitialize()

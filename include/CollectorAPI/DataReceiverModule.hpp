@@ -13,11 +13,11 @@
 #include <queue>
 namespace claid
 {
-    // Counterpart to FileSyncerModule.
+    // Counterpart to DataSyncModule.
     // Receives a list of files and compares it with files available in a specified directory.
-    // All files that are missing are requested from the FileSyncerModule, which will then be received
+    // All files that are missing are requested from the DataSyncModule, which will then be received
     // and stored in the path.
-    class FileReceiverModule : public Module
+    class DataReceiverModule : public Module
     {
 
         private:
@@ -26,14 +26,14 @@ namespace claid
             Channel<std::vector<std::string>> completeFileListChannel;
 
             // On this channel, we post files that are missing.
-            // They will be send by the FileSyncerModule.
+            // They will be send by the DataSyncModule.
             Channel<std::string> requestedFileChannel;
 
-            // On this channel, we receive files from the FileSyncerModule.
+            // On this channel, we receive files from the DataSyncModule.
             Channel<DataFile> dataFileChannel;
 
             // On this channel, we acknowledge received files.
-            // If "deleteFilesAfterSync" is activated in FileSyncerModule, it will delete the file locally.
+            // If "deleteFilesAfterSync" is activated in DataSyncModule, it will delete the file locally.
             Channel<std::string> receivedFilesAcknowledgementChannel;
 
             std::string filePath;
@@ -112,7 +112,7 @@ namespace claid
                 output.clear();
                 if(!FileUtils::getAllFilesInDirectoryRecursively(this->filePath, output))
                 {
-                    CLAID_THROW(claid::Exception, "Error in FileReceiverModule, cannot determine missing files.\n"
+                    CLAID_THROW(claid::Exception, "Error in DataReceiverModule, cannot determine missing files.\n"
                     << "Cannot retrieve list of files available in directory \"" << this->filePath << "\".\n"
                     << "Either the directory does not exist or we do not have permissions to access it.");
                 }
@@ -181,7 +181,7 @@ namespace claid
                     {
                         if(!FileUtils::createDirectoriesRecursively(targetFolderPath))
                         {
-                            CLAID_THROW(Exception, "Error in FileReceiverModule, cannot create target folder \"" << targetFolderPath << "\".");
+                            CLAID_THROW(Exception, "Error in DataReceiverModule, cannot create target folder \"" << targetFolderPath << "\".");
                         }
                     }
                 }
@@ -191,7 +191,7 @@ namespace claid
                 
                 if(!dataFile.saveToPath(targetFilePath))
                 {
-                    CLAID_THROW(Exception, "Error in FileReceiverModule, cannot create target file \"" << targetFilePath << "\".");
+                    CLAID_THROW(Exception, "Error in DataReceiverModule, cannot create target file \"" << targetFilePath << "\".");
                 }
 
                 if(this->storeArrivalTimePerFile)
@@ -225,7 +225,7 @@ namespace claid
                 {
                     if(!FileUtils::createDirectoriesRecursively(savePath))
                     {
-                        CLAID_THROW(Exception, "Error in FileReceiverModule. Cannot create save directory \"" << savePath << "\".");
+                        CLAID_THROW(Exception, "Error in DataReceiverModule. Cannot create save directory \"" << savePath << "\".");
                     }
                 }
             }
@@ -239,15 +239,15 @@ namespace claid
                 std::vector<std::string> output;
                 getListOfFilesInTargetDirectory(output);
 
-                this->completeFileListChannel = this->subscribe<std::vector<std::string>>(completeFileListChannelName, &FileReceiverModule::onCompleteFileListReceived, this);
+                this->completeFileListChannel = this->subscribe<std::vector<std::string>>(completeFileListChannelName, &DataReceiverModule::onCompleteFileListReceived, this);
                 this->requestedFileChannel = this->publish<std::string>(requestedFileChannelName);
-                this->dataFileChannel = this->subscribe<DataFile>(dataFileChannelName, &FileReceiverModule::onDataFileReceived, this);
+                this->dataFileChannel = this->subscribe<DataFile>(dataFileChannelName, &DataReceiverModule::onDataFileReceived, this);
                 this->receivedFilesAcknowledgementChannel = this->publish<std::string>(receivedFilesAcknowledgementChannelName);
             }
 
         public:
 
-            Reflect(FileReceiverModule,
+            Reflect(DataReceiverModule,
                 reflectMember(filePath);
                 reflectMemberWithDefaultValue(storeArrivalTimePerFile, false);
 

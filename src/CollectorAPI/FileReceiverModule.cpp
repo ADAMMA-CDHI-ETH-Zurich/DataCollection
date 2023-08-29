@@ -1,3 +1,3 @@
-#include "CollectorAPI/FileReceiverModule.hpp"
+#include "CollectorAPI/DataReceiverModule.hpp"
 
-REGISTER_MODULE(claid::FileReceiverModule)
+REGISTER_MODULE(claid::DataReceiverModule)

@@ -24,21 +24,24 @@ namespace claid
 
         data.applySerializerToData(this->serializer, !this->excludeHeader);
 
+       
+        std::string pathStr = this->fileNameFormat;
         // This has to be done BEFORE calling strftime! Otherwise strftime will throw an exception, 
         // if any of custom %identifier values are present.
-        std::string pathStr = this->fileNameFormat;
-        
         claid::StringUtils::stringReplaceAll(pathStr, "\%sequence_id", std::to_string(data.getSequenceID()));
         claid::StringUtils::stringReplaceAll(pathStr, "\%timestamp", std::to_string(data.getTimestamp().toUnixTimestampMilliseconds()));
        
-        pathStr = data.getHeader().timestamp.strftime(pathStr.c_str());
+        pathStr = data.getTimestamp().strftime(pathStr.c_str());
 
         Path path(pathStr);
 
-        Path oldPath = path;
-        Path oldCurrentPath = this->currentPath;
+        uint64_t timestampMs = data.getTimestamp().toUnixTimestampMilliseconds();
+
+
+            
         if(path != this->currentPath)
         {
+            Logger::printfln("FileSaver::storeData changing file Timestamp %s %s %s %s", std::to_string(timestampMs).c_str(), pathStr.c_str(), currentPath.toString().c_str(), this->what.c_str());
             this->currentPath = path;
             beginNewFile(this->currentPath);
         }
