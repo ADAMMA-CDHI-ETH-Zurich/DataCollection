@@ -42,10 +42,11 @@ namespace claid
             std::string tmpStoragePath;
             std::string currentFilePath;
 
+            std::ofstream currentFile;
+
             DataSaverModule* parentModule = nullptr;
             Path currentPath;
             Channel<Untyped> dataChannel;
-
 
         public:
 

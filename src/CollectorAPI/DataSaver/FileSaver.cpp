@@ -72,7 +72,7 @@ namespace claid
         }
 
         bool append = true;
-        this->serializer->writeDataToFile(this->getCurrentFilePath(), append);
+        this->serializer->writeDataToFile(this->getCurrentFilePath(), this->currentFile);
     }
 
     void FileSaver::beginNewFile(const Path& path)
@@ -89,9 +89,20 @@ namespace claid
         {
             this->currentFilePath = (Path::join(this->storagePath, path).toString());
         }
-      
+
+        if(this->currentFile.is_open())
+        {
+            this->currentFile.flush();
+            this->currentFile.close();
+        }
+        this->currentFile = std::ofstream(this->currentFilePath, std::ios::app);
+        if(!this->currentFile.is_open())
+        {
+            CLAID_THROW(claid::Exception, "FileSaver: Failed to open file \" " << this->currentFilePath << "\"");
+        }
+
         bool append = true;
-        this->serializer->writeHeaderToFile(this->getCurrentFilePath(), append);
+        this->serializer->writeHeaderToFile(this->getCurrentFilePath(), this->currentFile);
     }
 
     std::string FileSaver::getCurrentFilePath()
@@ -102,7 +113,7 @@ namespace claid
     void FileSaver::storeDataHeader(const Path& path)
     {
         bool append = true;
-        this->serializer->writeHeaderToFile(path, append);
+        this->serializer->writeHeaderToFile(path, this->currentFile);
     }
 
     void FileSaver::getCurrentPathRelativeToStorageFolder(Path& path, const Time timestamp)
